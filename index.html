@@ -301,13 +301,17 @@ sessionStorage.setItem(
           /*
            * Hentikan kamera.
            */
-         /*
+      
+/*
  * Hentikan kamera, lalu proses hasil QR.
  */
 scanner.stop()
 
   .catch(function(error) {
-    console.warn("Kamera tidak berhasil dihentikan:", error);
+    console.warn(
+      "Kamera tidak berhasil dihentikan:",
+      error
+    );
   })
 
   .then(function() {
@@ -317,6 +321,7 @@ scanner.stop()
 
     const mode =
       String(params.get("mode") || "").trim();
+
 
     /*
      * MODE TOP UP
@@ -365,7 +370,6 @@ scanner.stop()
 
     /*
      * MODE KASIR
-     * Pertahankan alur Kasir yang lama.
      */
     const namaPetugas =
       String(params.get("petugas") || "").trim();
@@ -385,41 +389,6 @@ scanner.stop()
     window.location.href = urlKasir;
 
   });
-              console.error(error);
-
-
-              /*
-               * Jika kamera gagal dihentikan,
-               * tetap lanjut ke Kasir.
-               */
-              const paramsKasir =
-  new URLSearchParams(
-    window.location.search
-  );
-
-const tokenPetugas =
-  String(
-    paramsKasir.get("token") || ""
-  ).trim();
-
-const namaPetugas =
-  String(
-    paramsKasir.get("petugas") || ""
-  ).trim();
-
-const urlKasir =
-  KASIR_URL +
-  "?id=" +
-  encodeURIComponent(idSantri) +
-  "&petugas=" +
-  encodeURIComponent(namaPetugas) +
-  "&token=" +
-  encodeURIComponent(tokenPetugas);
-
-              window.location.href =
-                urlKasir;
-
-            });
 
         },
 

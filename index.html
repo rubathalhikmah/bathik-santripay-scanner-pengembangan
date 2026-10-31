@@ -301,53 +301,90 @@ sessionStorage.setItem(
           /*
            * Hentikan kamera.
            */
-          scanner.stop()
+         /*
+ * Hentikan kamera, lalu proses hasil QR.
+ */
+scanner.stop()
 
-            .then(function() {
+  .catch(function(error) {
+    console.warn("Kamera tidak berhasil dihentikan:", error);
+  })
 
-              /*
-               * Kirim ID Santri ke Kasir.
-               */
-              const params =
-  new URLSearchParams(
-    window.location.search
-  );
+  .then(function() {
 
-const namaPetugas =
-  String(
-    params.get("petugas") || ""
-  ).trim();
+    const params =
+      new URLSearchParams(window.location.search);
+
+    const mode =
+      String(params.get("mode") || "").trim();
+
+    /*
+     * MODE TOP UP
+     */
+    if (mode === "topup") {
+
+      const returnOrigin =
+        String(params.get("returnOrigin") || "").trim();
+
+      if (!window.opener || window.opener.closed) {
+
+        document.getElementById("status").textContent =
+          "Halaman TOP UP tidak ditemukan. Silakan buka scanner dari halaman TOP UP.";
+
+        sudahScan = false;
+        return;
+      }
+
+      if (!returnOrigin) {
+
+        document.getElementById("status").textContent =
+          "Alamat tujuan TOP UP tidak ditemukan.";
+
+        sudahScan = false;
+        return;
+      }
+
+      window.opener.postMessage(
+        {
+          type: "BATHIK_TOPUP_SCAN",
+          idSantri: idSantri
+        },
+        returnOrigin
+      );
+
+      document.getElementById("status").textContent =
+        "QR berhasil dibaca. ID santri dikirim ke halaman TOP UP.";
+
+      setTimeout(function() {
+        window.close();
+      }, 700);
+
+      return;
+    }
 
 
-const paramsKasir =
-  new URLSearchParams(
-    window.location.search
-  );
+    /*
+     * MODE KASIR
+     * Pertahankan alur Kasir yang lama.
+     */
+    const namaPetugas =
+      String(params.get("petugas") || "").trim();
 
-const tokenPetugas =
-  String(
-    paramsKasir.get("token") || ""
-  ).trim();
+    const tokenPetugas =
+      String(params.get("token") || "").trim();
 
-const urlKasir =
-  KASIR_URL +
-  "?id=" +
-  encodeURIComponent(idSantri) +
-  "&petugas=" +
-  encodeURIComponent(namaPetugas) +
-  "&token=" +
-  encodeURIComponent(tokenPetugas);
+    const urlKasir =
+      KASIR_URL +
+      "?id=" +
+      encodeURIComponent(idSantri) +
+      "&petugas=" +
+      encodeURIComponent(namaPetugas) +
+      "&token=" +
+      encodeURIComponent(tokenPetugas);
 
-              /*
-               * Buka halaman Kasir.
-               */
-              window.location.href =
-                urlKasir;
+    window.location.href = urlKasir;
 
-            })
-
-            .catch(function(error) {
-
+  });
               console.error(error);
 
 
